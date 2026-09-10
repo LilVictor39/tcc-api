@@ -71,7 +71,7 @@ depois* da adoção de mecanismos de segurança. Por isso, nesta fase:
   vulnerabilidades iniciais (ex: ausência de autenticação, possível BOLA —
   OWASP API1:2023 — já que não há checagem de dono do recurso).
 
-Não adicione Spring Security ainda — isso é objetivo da Entrega 3.
+O Spring Security ainda não foi adicionado — isso é objetivo da Entrega 3.
 
 ## Próximos passos (próximas entregas)
 
