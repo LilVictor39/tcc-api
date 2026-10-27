@@ -1,74 +1,30 @@
 package br.edu.ceulp.tccapi.controller;
-
 import br.edu.ceulp.tccapi.model.Tarefa;
 import br.edu.ceulp.tccapi.repository.TarefaRepository;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.constraints.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-
-/**
- * CRUD basico de tarefas.
- *
- * IMPORTANTE (Entrega 1): este controller e o BASELINE proposital
- * sem seguranca. Qualquer requisicao pode criar, ler, alterar ou
- * excluir qualquer tarefa de qualquer usuario - inclusive tarefas
- * de outros "donos" (usuarioId). Isso sera usado na Entrega 2 para
- * rodar o OWASP ZAP e registrar as vulnerabilidades iniciais
- * (ex: ausencia de autenticacao, BOLA/API1:2023, etc).
- *
- * NAO adicionar Spring Security aqui ainda - isso e trabalho da
- * Entrega 3 em diante.
- */
-@RestController
-@RequestMapping("/api/tarefas")
+@RestController @RequestMapping("/api/tarefas")
 public class TarefaController {
-
-    private final TarefaRepository repository;
-
-    public TarefaController(TarefaRepository repository) {
-        this.repository = repository;
-    }
-
-    @GetMapping
-    public List<Tarefa> listar() {
-        return repository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Tarefa> buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Tarefa criar(@Valid @RequestBody Tarefa tarefa) {
-        return repository.save(tarefa);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Tarefa> atualizar(@PathVariable Long id, @Valid @RequestBody Tarefa dados) {
-        return repository.findById(id)
-                .map(existente -> {
-                    existente.setTitulo(dados.getTitulo());
-                    existente.setDescricao(dados.getDescricao());
-                    existente.setStatus(dados.getStatus());
-                    existente.setUsuarioId(dados.getUsuarioId());
-                    return ResponseEntity.ok(repository.save(existente));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        if (!repository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        repository.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
+ private final TarefaRepository repository;
+ public TarefaController(TarefaRepository r){repository=r;}
+ // DTO nao permite escolher o dono nem alterar id e data de criacao.
+ public record Dados(@NotBlank String titulo,String descricao,@NotNull Tarefa.StatusTarefa status){}
+ private Long dono(Jwt jwt){try{return Long.valueOf(jwt.getSubject());}catch(RuntimeException e){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);}}
+ private Tarefa obter(Long id,Long dono){return repository.findByIdAndUsuarioId(id,dono).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));}
+ @GetMapping public List<Tarefa> listar(@AuthenticationPrincipal Jwt jwt){return repository.findAllByUsuarioId(dono(jwt));}
+ @GetMapping("/{id}") public Tarefa buscar(@PathVariable Long id,@AuthenticationPrincipal Jwt jwt){return obter(id,dono(jwt));}
+ @PostMapping @ResponseStatus(HttpStatus.CREATED) public Tarefa criar(@Valid @RequestBody Dados dados,@AuthenticationPrincipal Jwt jwt){
+  var t=new Tarefa(dados.titulo(),dados.descricao(),dono(jwt));t.setStatus(dados.status());return repository.save(t);
+ }
+ @PutMapping("/{id}") @Transactional public Tarefa atualizar(@PathVariable Long id,@Valid @RequestBody Dados dados,@AuthenticationPrincipal Jwt jwt){
+  var t=obter(id,dono(jwt));t.setTitulo(dados.titulo());t.setDescricao(dados.descricao());t.setStatus(dados.status());return repository.save(t);
+ }
+ @DeleteMapping("/{id}") @Transactional public ResponseEntity<Void> excluir(@PathVariable Long id,@AuthenticationPrincipal Jwt jwt){repository.delete(obter(id,dono(jwt)));return ResponseEntity.noContent().build();}
 }

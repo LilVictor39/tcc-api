@@ -1,87 +1,63 @@
-# tcc-api — Baseline (Entrega 1)
+# TCC API — Entrega 3
 
-API REST basica em Spring Boot + PostgreSQL, **sem mecanismos de seguranca**,
-usada como ponto de partida do TCC1 ("Segurança em Nuvem — Mecanismos de
-segurança para APIs REST").
+Autenticação JWT e autorização por proprietário. O baseline original está preservado no pacote, em `baseline-original.zip`. Esta versão é destinada ao experimento local do TCC.
 
-## Pré-requisitos
+## Iniciar no seu WSL
 
-- Java 17+ (`java -version`)
-- Maven (ou usar o wrapper `./mvnw`, se preferir gerar um)
-- Docker + Docker Compose
+Requisitos: Java 17, Maven, Docker Compose, OpenSSL e Python 3.
 
-## Como rodar
+1. Encerre a aplicação antiga com Ctrl+C no terminal que executa `mvn spring-boot:run`.
+2. Na pasta antiga, execute `docker compose stop`. Isso libera a porta 5432; não exclui volumes.
+3. Extraia este pacote em uma pasta NOVA, por exemplo `~/projetos/tcc-entrega3`.
+4. Entre na pasta `tcc-api` do pacote e execute:
 
-1. Subir o PostgreSQL:
-
-   ```bash
-   docker compose up -d
-   ```
-
-2. Rodar a aplicação:
-
-   ```bash
-   mvn spring-boot:run
-   ```
-
-   A API sobe em `http://localhost:8080`.
-
-3. Testar os endpoints (exemplos com curl):
-
-   ```bash
-   # Criar tarefa
-   curl -X POST http://localhost:8080/api/tarefas \
-     -H "Content-Type: application/json" \
-     -d '{"titulo":"Configurar ambiente","descricao":"Spring Boot + PostgreSQL","usuarioId":1}'
-
-   # Listar tarefas
-   curl http://localhost:8080/api/tarefas
-
-   # Buscar por id
-   curl http://localhost:8080/api/tarefas/1
-
-   # Atualizar
-   curl -X PUT http://localhost:8080/api/tarefas/1 \
-     -H "Content-Type: application/json" \
-     -d '{"titulo":"Configurar ambiente (ok)","descricao":"Feito","status":"CONCLUIDA","usuarioId":1}'
-
-   # Excluir
-   curl -X DELETE http://localhost:8080/api/tarefas/1
-   ```
-
-## Estrutura
-
-```
-src/main/java/br/edu/ceulp/tccapi/
-├── TccApiApplication.java     # classe principal
-├── model/Tarefa.java          # entidade de dominio
-├── repository/                # acesso a dados (Spring Data JPA)
-└── controller/                # endpoints REST (CRUD sem seguranca)
+```bash
+bash iniciar.sh
 ```
 
-## Importante — por que "sem segurança" é proposital
+O script cria uma chave aleatória local em `.jwt-secret` com permissão restrita e inicia PostgreSQL e a API. Não publique esse arquivo. Uma chave já existente é reutilizada entre reinícios. Você também pode fornecer `JWT_SECRET` externamente em Base64, com ao menos 32 bytes aleatórios. Não use uma senha memorizável como chave.
 
-Este é o **baseline** da Entrega 1/2. O objetivo do TCC é medir o *antes x
-depois* da adoção de mecanismos de segurança. Por isso, nesta fase:
+Foi mantida a versão Spring Boot 3.3.4 do experimento para controlar mudanças; isso não representa auditoria de vulnerabilidades das dependências nem recomendação de versão para produção.
 
-- Não há autenticação nem autorização.
-- Qualquer requisição pode ler/alterar/excluir qualquer tarefa, inclusive
-  de outro `usuarioId`.
-- Isso será usado na Entrega 2 para rodar o OWASP ZAP e documentar as
-  vulnerabilidades iniciais (ex: ausência de autenticação, possível BOLA —
-  OWASP API1:2023 — já que não há checagem de dono do recurso).
+## Banco separado do baseline
 
-O Spring Security ainda não foi adicionado — isso é objetivo da Entrega 3.
+Esta versão usa banco `tccdb_entrega3`, contêiner `tcc-postgres-entrega3` e volume `tcc_e3_pgdata`. Tarefas antigas NÃO são migradas: `usuarioId` do baseline era um número arbitrário e não pode ser vinculado automaticamente às novas contas. Não execute `docker compose down -v` na pasta antiga. Para voltar ao baseline, pare os serviços da entrega 3 e reinicie os da pasta antiga.
 
-## Próximos passos (próximas entregas)
+## Executar os testes
 
-- **Entrega 2 (27/09):** rodar OWASP ZAP contra esta API e documentar o
-  baseline de vulnerabilidades.
-- **Entrega 3 (11/10):** adicionar Spring Security + JWT + controle de
-  acesso por objeto (dono da tarefa).
-- **Entrega 4 (25/10):** validação de entrada (Bean Validation já está no
-  `pom.xml`), HTTPS, rate limiting (ex: Bucket4j), tratamento de erros.
-- **Entrega 5 (08/11):** reavaliação com OWASP ZAP e comparação com o
-  baseline.
-- **Entrega 6 (22/11):** deploy em nuvem (AWS/Azure/GCP) + consolidação
-  comparativa.
+Em outro terminal, na pasta desta versão:
+
+```bash
+mvn test
+python3 verificar_entrega3.py
+```
+
+`mvn test` usa H2 isolado com modo PostgreSQL e MockMvc; não exige o PostgreSQL local. O segundo comando envia requisições HTTP para a API real e gera `evidencias_http_entrega3.csv`. Esse teste deve ser executado no seu Windows/WSL com PostgreSQL antes de apresentar a entrega. Ele cria contas fictícias com nomes únicos, que permanecem no banco; remove a tarefa de teste.
+
+## Endpoints
+
+- POST `/api/auth/cadastro`: `{ "email": "a@example.test", "senha": "SenhaTeste123!" }` → 201 e conta sem hash.
+- POST `/api/auth/login`: o mesmo formato → 200 com `accessToken`, `tokenType` e `expiresIn`.
+- Todas as rotas `/api/tarefas` exigem `Authorization: Bearer SEU_TOKEN`.
+- POST/PUT de tarefa: `{ "titulo": "Minha tarefa", "descricao": "Teste", "status": "PENDENTE" }`.
+- Não envie `usuarioId`, `id` ou `criadaEm`: o servidor rejeita campos desconhecidos. O dono é definido pelo `sub` do JWT.
+- GET lista apenas tarefas do dono. Consulta, alteração e exclusão de recurso alheio retornam 404, assim como recurso inexistente, para reduzir divulgação de existência.
+- Ausência de token, token inválido, expirado ou com emissor incorreto → 401.
+
+## Decisões de segurança
+
+Senhas são armazenadas com BCrypt. JWT assinado com HS256, emissor `tcc-api` e validade de 15 minutos, com tolerância de relógio padrão do Spring. A chave fica fora do código. O resource server do Spring Security valida assinatura e expiração; a aplicação restringe o algoritmo a HS256. Os DTOs não permitem escolher ou transferir a propriedade.
+
+CSRF foi desabilitado porque o experimento usa Bearer no cabeçalho e não autenticação automática por cookies; reavaliar essa decisão se o modelo mudar. Tokens não são criptografados. Não contêm senha. Não há refresh token, revogação individual imediata ou logout no servidor: o token é aceito até expirar, e a rotação de chave invalida todos. A chave é exclusiva desta API; não deve ser reutilizada em outros serviços.
+
+O cabeçalho `X-Content-Type-Options: nosniff` passa a ser fornecido pelo Spring Security. Esse efeito deve ser registrado na comparação, pois altera o achado da Entrega 2 junto com a introdução do framework.
+
+## Conferir no ZAP
+
+Mantenha proxy `localhost:8090` e API `localhost:8080`. Use o token de A no Editor Manual de Requisições para criar uma tarefa e copie o ID. Autentique B e repita GET, PUT e DELETE com o mesmo ID: o esperado é 404. Salve requisição e resposta e exporte o relatório/sessão. Não inclua tokens ativos ou senhas nas capturas da versão entregue ao professor.
+
+## Limites desta entrega
+
+HTTPS, rate limiting, auditoria estruturada e tratamento completo de erros pertencem à próxima etapa. A API ainda opera por HTTP local e não deve ser apresentada como pronta para produção ou implantada em nuvem. Não se declara mitigação de todo o OWASP Top 10, nem avaliação de desempenho concluída.
+
+A configuração usa `ddl-auto=update` apenas no laboratório. A implantação futura precisará de migrações e gestão de credenciais próprias. As credenciais do PostgreSQL são fictícias e exclusivas do laboratório.

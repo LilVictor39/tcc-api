@@ -1,16 +1,21 @@
 services:
   postgres:
     image: postgres:16
-    container_name: tcc-postgres
+    container_name: tcc-postgres-entrega3
     restart: unless-stopped
     environment:
-      POSTGRES_DB: tccdb
+      POSTGRES_DB: tccdb_entrega3
       POSTGRES_USER: tccuser
       POSTGRES_PASSWORD: tccpass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tccuser -d tccdb_entrega3"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
     ports:
       - "5432:5432"
     volumes:
-      - tcc_pgdata:/var/lib/postgresql/data
+      - tcc_e3_pgdata:/var/lib/postgresql/data
 
 volumes:
-  tcc_pgdata:
+  tcc_e3_pgdata:
