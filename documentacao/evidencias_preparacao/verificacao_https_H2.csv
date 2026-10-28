@@ -1,0 +1,68 @@
+﻿Cenario;Esperado;Observado;Resultado
+Sem token;401;401;PASSOU
+Sem token - erro JSON padronizado;True;True;PASSOU
+Sem token - sem detalhes internos;False;False;PASSOU
+HSTS presente;True;True;PASSOU
+Cadastro a;201;201;PASSOU
+Login a;200;200;PASSOU
+Cadastro b;201;201;PASSOU
+Login b;200;200;PASSOU
+Email invalido;400;400;PASSOU
+Email invalido - erro JSON padronizado;True;True;PASSOU
+Email invalido - sem detalhes internos;False;False;PASSOU
+Senha Unicode acima de 72 bytes;400;400;PASSOU
+Senha Unicode acima de 72 bytes - erro JSON padronizado;True;True;PASSOU
+Senha Unicode acima de 72 bytes - sem detalhes internos;False;False;PASSOU
+Titulo vazio;400;400;PASSOU
+Titulo vazio - erro JSON padronizado;True;True;PASSOU
+Titulo vazio - sem detalhes internos;False;False;PASSOU
+Titulo acima de 255;400;400;PASSOU
+Titulo acima de 255 - erro JSON padronizado;True;True;PASSOU
+Titulo acima de 255 - sem detalhes internos;False;False;PASSOU
+Descricao acima de 1000;400;400;PASSOU
+Descricao acima de 1000 - erro JSON padronizado;True;True;PASSOU
+Descricao acima de 1000 - sem detalhes internos;False;False;PASSOU
+Status invalido;400;400;PASSOU
+Status invalido - erro JSON padronizado;True;True;PASSOU
+Status invalido - sem detalhes internos;False;False;PASSOU
+Proprietario forjado;400;400;PASSOU
+Proprietario forjado - erro JSON padronizado;True;True;PASSOU
+Proprietario forjado - sem detalhes internos;False;False;PASSOU
+JSON malformado;400;400;PASSOU
+JSON malformado - erro JSON padronizado;True;True;PASSOU
+JSON malformado - sem detalhes internos;False;False;PASSOU
+Tipo de conteudo incorreto;415;415;PASSOU
+Tipo de conteudo incorreto - erro JSON padronizado;True;True;PASSOU
+Tipo de conteudo incorreto - sem detalhes internos;False;False;PASSOU
+Corpo acima de 16 KiB;413;413;PASSOU
+Corpo acima de 16 KiB - erro JSON padronizado;True;True;PASSOU
+Corpo acima de 16 KiB - sem detalhes internos;False;False;PASSOU
+Criacao valida;201;201;PASSOU
+B bloqueado em GET;404;404;PASSOU
+B bloqueado em GET - erro JSON padronizado;True;True;PASSOU
+B bloqueado em GET - sem detalhes internos;False;False;PASSOU
+B bloqueado em PUT;404;404;PASSOU
+B bloqueado em PUT - erro JSON padronizado;True;True;PASSOU
+B bloqueado em PUT - sem detalhes internos;False;False;PASSOU
+B bloqueado em DELETE;404;404;PASSOU
+B bloqueado em DELETE - erro JSON padronizado;True;True;PASSOU
+B bloqueado em DELETE - sem detalhes internos;False;False;PASSOU
+A ainda consulta;200;200;PASSOU
+ID negativo;400;400;PASSOU
+ID negativo - erro JSON padronizado;True;True;PASSOU
+ID negativo - sem detalhes internos;False;False;PASSOU
+ID nao numerico;400;400;PASSOU
+ID nao numerico - erro JSON padronizado;True;True;PASSOU
+ID nao numerico - sem detalhes internos;False;False;PASSOU
+Metodo nao permitido;405;405;PASSOU
+Metodo nao permitido - erro JSON padronizado;True;True;PASSOU
+Metodo nao permitido - sem detalhes internos;False;False;PASSOU
+Exclusao pelo dono;204;204;PASSOU
+Limite de autenticacao;429;429;PASSOU
+Limite de autenticacao - erro JSON padronizado;True;True;PASSOU
+Limite de autenticacao - sem detalhes internos;False;False;PASSOU
+Retry-After autenticacao;True;True;PASSOU
+Limite geral da API;429;429;PASSOU
+Limite geral da API - erro JSON padronizado;True;True;PASSOU
+Limite geral da API - sem detalhes internos;False;False;PASSOU
+Retry-After API;True;True;PASSOU

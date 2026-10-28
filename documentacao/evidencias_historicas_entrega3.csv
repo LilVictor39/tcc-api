@@ -1,0 +1,17 @@
+﻿Cenario;Esperado;Observado;Resultado
+Cadastro a;201;201;PASSOU
+Login a;200;200;PASSOU
+Cadastro b;201;201;PASSOU
+Login b;200;200;PASSOU
+Sem token;401;401;PASSOU
+Token invalido;401;401;PASSOU
+Criacao por A;201;201;PASSOU
+Consulta pelo dono;200;200;PASSOU
+Listagem de B;200;200;PASSOU
+Isolamento da listagem;False;False;PASSOU
+GET por outro usuario;404;404;PASSOU
+PUT por outro usuario;404;404;PASSOU
+DELETE por outro usuario;404;404;PASSOU
+Tentativa de trocar dono;400;400;PASSOU
+Alteracao pelo dono;200;200;PASSOU
+Exclusao pelo dono;204;204;PASSOU

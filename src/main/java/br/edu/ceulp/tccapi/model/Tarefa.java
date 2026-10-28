@@ -5,16 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
-/**
- * Entidade de dominio para o baseline da API (Entrega 1).
- * Propositalmente simples: o objetivo desta etapa e ter um CRUD
- * funcional SEM nenhum mecanismo de seguranca, servindo de base
- * de comparacao (baseline) para as entregas seguintes.
- *
- * Quando a autenticacao/autorizacao for implementada (Entrega 3),
- * o campo "usuarioId" (dono da tarefa) sera usado para o controle
- * de acesso a nivel de objeto (mitigacao de BOLA - OWASP API1:2023).
- */
+/** Tarefa com acesso restrito ao proprietario autenticado. */
 @Entity
 @Table(name = "tarefas")
 public class Tarefa {
@@ -34,8 +25,7 @@ public class Tarefa {
     @Column(nullable = false)
     private StatusTarefa status = StatusTarefa.PENDENTE;
 
-    // Campo preparado para a fase de autorizacao (Entrega 3).
-    // Por enquanto fica solto, sem FK para usuario/autenticacao.
+    // Proprietario obtido do JWT; nao aceito no DTO de entrada.
     private Long usuarioId;
 
     @Column(nullable = false, updatable = false)

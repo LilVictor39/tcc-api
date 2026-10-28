@@ -16,7 +16,7 @@ import java.util.Locale;
 public class AuthController {
  private final UsuarioRepository users; private final PasswordEncoder passwords; private final JwtEncoder encoder;
  public AuthController(UsuarioRepository u,PasswordEncoder p,JwtEncoder e){users=u;passwords=p;encoder=e;}
- public record Credenciais(@NotBlank @Email String email,@NotBlank @Size(min=8,max=72) String senha){}
+ public record Credenciais(@NotBlank @Email @Size(max=254) String email,@NotBlank @Size(min=8,max=72) String senha){}
  public record Conta(Long id,String email){}
  public record Token(String accessToken,String tokenType,long expiresIn){}
  @PostMapping("/cadastro") public ResponseEntity<Conta> cadastro(@Valid @RequestBody Credenciais c){
@@ -26,6 +26,7 @@ public class AuthController {
   }catch(DataIntegrityViolationException e){throw new ResponseStatusException(HttpStatus.CONFLICT,"Cadastro indisponivel");}
  }
  @PostMapping("/login") public ResponseEntity<Token> login(@Valid @RequestBody Credenciais c){
+  if(c.senha().getBytes(java.nio.charset.StandardCharsets.UTF_8).length>72)throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
   var u=users.findByEmail(c.email().trim().toLowerCase(Locale.ROOT));
   if(u.isEmpty() || !passwords.matches(c.senha(),u.get().getSenhaHash()))throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Credenciais invalidas");
   Instant now=Instant.now();

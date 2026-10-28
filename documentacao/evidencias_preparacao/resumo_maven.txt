@@ -1,0 +1,8 @@
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.14 s -- in br.edu.ceulp.tccapi.HttpsIntegrationTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.094 s -- in br.edu.ceulp.tccapi.RequestLimitsTest
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.929 s -- in br.edu.ceulp.tccapi.Entrega4IntegrationTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.586 s -- in br.edu.ceulp.tccapi.SegurancaIntegrationTest
+[INFO] Tests run: 48, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  26.935 s
+[INFO] Finished at: 2026-10-27T20:55:24-03:00

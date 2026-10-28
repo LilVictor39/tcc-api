@@ -14,7 +14,7 @@ import java.time.Instant;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-@SpringBootTest(properties={"spring.datasource.url=jdbc:h2:mem:tcc;MODE=PostgreSQL;DB_CLOSE_DELAY=-1","spring.datasource.driver-class-name=org.h2.Driver","spring.datasource.username=sa","spring.datasource.password=","spring.jpa.hibernate.ddl-auto=create-drop","app.jwt.secret=MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="})
+@SpringBootTest(properties={"spring.profiles.active=test","app.limits.api=10000","app.limits.auth=10000","spring.datasource.url=jdbc:h2:mem:tcc;MODE=PostgreSQL;DB_CLOSE_DELAY=-1","spring.datasource.driver-class-name=org.h2.Driver","spring.datasource.username=sa","spring.datasource.password=","spring.jpa.hibernate.ddl-auto=create-drop","app.jwt.secret=MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="})
 @AutoConfigureMockMvc
 class SegurancaIntegrationTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper json; @Autowired UsuarioRepository users; @Autowired TarefaRepository tarefas;
